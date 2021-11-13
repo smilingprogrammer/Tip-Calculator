@@ -3,6 +3,8 @@ package com.example.tipcalculator
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.tipcalculator.databinding.ActivityMainBinding
+import java.text.NumberFormat
+import kotlin.math.ceil
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,7 +20,11 @@ class MainActivity : AppCompatActivity() {
 
     fun calculateTip() {
         val stringInField = binding.costOfService.text.toString()
-        val cost = stringInField.toDouble()
+        val cost = stringInField.toDoubleOrNull()
+        if (cost == null) {
+            binding.tipResult.text = ""
+            return
+        }
 
         val selectedId = binding.tipOptions.checkedRadioButtonId
 
@@ -28,6 +34,15 @@ class MainActivity : AppCompatActivity() {
             else -> 0.15
         }
 
-        val tip = percentage * cost
+        val roundUp = binding.roundUpSwitch.isChecked
+
+        var tip = percentage * cost
+        tip = ceil(tip)
+        if (roundUp) {
+            tip = kotlin.math.ceil(tip)
+        }
+
+        val formattedTip = NumberFormat.getCurrencyInstance().format(tip)
+        binding.tipResult.text = getString(R.string.tip_amount, formattedTip)
     }
 }
